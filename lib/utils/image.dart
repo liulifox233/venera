@@ -324,7 +324,7 @@ Future<dynamic> processOnResponseWithScript(Uint8List data, String script) async
   }
 }
 
-Future<Uint8List> modifyImageWithScript(Uint8List data, String script) async{
+Future<Uint8List> modifyImageWithScript(Uint8List data, String script) async {
   while (_tasksCount > 3) {
     await Future.delayed(const Duration(milliseconds: 200));
   }

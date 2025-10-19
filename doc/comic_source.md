@@ -502,6 +502,30 @@ If `load` function is implemented, `loadNext` function will be ignored.
          * @param comicId
          * @param epId
          * @returns {ImageLoadingConfig | Promise<ImageLoadingConfig>}
+         * 
+         * Example with onResponse as a function (runs on main thread):
+         * onImageLoad: (url, comicId, epId) => {
+         *   return {
+         *     url: url,
+         *     onResponse: (buffer) => {
+         *       // Process buffer synchronously (may block UI)
+         *       return buffer;
+         *     }
+         *   }
+         * }
+         * 
+         * Example with onResponse as a string (runs in separate isolate):
+         * onImageLoad: (url, comicId, epId) => {
+         *   return {
+         *     url: url,
+         *     onResponse: `
+         *       function onResponse(buffer) {
+         *         // Process buffer asynchronously (won't block UI)
+         *         return buffer;
+         *       }
+         *     `
+         *   }
+         * }
          */
         onImageLoad: (url, comicId, epId) => {
             return {}
