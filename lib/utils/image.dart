@@ -293,7 +293,38 @@ class JsEngine {
 
 var _tasksCount = 0;
 
-Future<Uint8List> modifyImageWithScript(Uint8List data, String script) async {
+Future<dynamic> processOnResponseWithScript(Uint8List data, String script) async {
+  while (_tasksCount > 3) {
+    await Future.delayed(const Duration(milliseconds: 200));
+  }
+  _tasksCount++;
+  try {
+    var initJs = await rootBundle.loadString('assets/init.js');
+    return await Isolate.run(() {
+      var jsEngine = JsEngine();
+      jsEngine.runCode(initJs, '<init>');
+      jsEngine.runCode(script);
+      // Call onResponse function with the data
+      var wrapper = jsEngine.runCode('''
+        (function(buffer) {
+          let result = onResponse(buffer);
+          // Convert Uint8Array to regular array for return
+          if (result && result.constructor && result.constructor.name === 'Uint8Array') {
+            return Array.from(result);
+          }
+          return result;
+        })
+      ''');
+      var result = (wrapper as JSInvokable)([data]);
+      wrapper.free();
+      return result;
+    });
+  } finally {
+    _tasksCount--;
+  }
+}
+
+Future<Uint8List> modifyImageWithScript(Uint8List data, String script) async{
   while (_tasksCount > 3) {
     await Future.delayed(const Duration(milliseconds: 200));
   }

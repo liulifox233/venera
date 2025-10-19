@@ -74,6 +74,17 @@ abstract class ImageDownloader {
       final uint8List = Uint8List.fromList(buffer);
       buffer = (configs['onResponse'] as JSInvokable)([uint8List]);
       (configs['onResponse'] as JSInvokable).free();
+    } else if (configs['onResponse'] is String) {
+      final uint8List = Uint8List.fromList(buffer);
+      var result = await processOnResponseWithScript(
+        uint8List,
+        configs['onResponse'],
+      );
+      if (result is List) {
+        buffer = List<int>.from(result);
+      } else if (result is Uint8List) {
+        buffer = result;
+      }
     }
 
     await CacheManager().writeCache(cacheKey, buffer);
@@ -183,6 +194,16 @@ abstract class ImageDownloader {
         if (configs['onResponse'] is JSInvokable) {
           buffer = (configs['onResponse'] as JSInvokable)([Uint8List.fromList(buffer)]);
           (configs['onResponse'] as JSInvokable).free();
+        } else if (configs['onResponse'] is String) {
+          var result = await processOnResponseWithScript(
+            Uint8List.fromList(buffer),
+            configs['onResponse'],
+          );
+          if (result is List) {
+            buffer = List<int>.from(result);
+          } else if (result is Uint8List) {
+            buffer = result.toList();
+          }
         }
 
         Uint8List data;
