@@ -408,7 +408,10 @@ function Comment({userName, avatar, content, time, replyCount, id, isLiked, scor
  * @param method {string?} - http method, uppercase
  * @param data {any} - request data, may be null
  * @param headers {Object?} - request headers
- * @param onResponse {((ArrayBuffer) => ArrayBuffer)?} - modify response data
+ * @param onResponse {((ArrayBuffer) => ArrayBuffer) | string?} - modify response data.
+ *  Can be either a function (executed synchronously on main thread) or a JavaScript script string.
+ *  When provided as a string, the script will be executed in a new Isolate to avoid blocking the UI thread.
+ *  A function named `onResponse` should be defined in the script, which receives an ArrayBuffer as the only argument and returns an ArrayBuffer.
  * @param modifyImage {string?}
  *  A js script string.
  *  The script will be executed in a new Isolate.
